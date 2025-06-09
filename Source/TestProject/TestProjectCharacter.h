@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Logging/LogMacros.h"
+#include "ASpawnCubeActor.h" 
 #include "TestProjectCharacter.generated.h"
 
 class UInputComponent;
@@ -48,6 +49,9 @@ protected:
 	/** Mouse Look Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category ="Input")
 	class UInputAction* MouseLookAction;
+
+	UPROPERTY(EditDefaultsOnly, Category="Spawn")
+	TSubclassOf<AASpawnCubeActor> CubeClass;
 	
 public:
 	ATestProjectCharacter();

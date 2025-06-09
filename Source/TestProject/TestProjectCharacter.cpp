@@ -48,6 +48,9 @@ ATestProjectCharacter::ATestProjectCharacter()
 	GetCharacterMovement()->AirControl = 0.5f;
 
 	GetCharacterMovement()->MaxWalkSpeed = 2000.0f;
+	
+	// Set default cube class
+	CubeClass = AASpawnCubeActor::StaticClass();
 }
 
 void ATestProjectCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -118,9 +121,9 @@ void ATestProjectCharacter::DoMove(float Right, float Forward)
 		if (GEngine)
 		{
 			GEngine->AddOnScreenDebugMessage(
-				0, // Key，0代表覆蓋同一條訊息
-				0.05f, // 顯示時間（秒）
-				FColor::Green, // 文字顏色
+				0,
+				0.05f,
+				FColor::Green,
 				FString::Printf(TEXT("Current Speed: %.2f"), CurrentSpeed)
 			);
 		}
@@ -129,6 +132,14 @@ void ATestProjectCharacter::DoMove(float Right, float Forward)
 
 void ATestProjectCharacter::DoJumpStart()
 {
+	if (CubeClass)
+	{
+		FVector SpawnLocation = GetActorLocation() + GetActorForwardVector() * 100.0f;
+		FRotator SpawnRotation = FRotator::ZeroRotator;
+		FActorSpawnParameters SpawnParams;
+		GetWorld()->SpawnActor<AASpawnCubeActor>(CubeClass, SpawnLocation, SpawnRotation, SpawnParams);
+	}
+
 	// pass Jump to the character
 	Jump();
 }
