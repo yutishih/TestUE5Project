@@ -51,11 +51,13 @@ ATestProjectCharacter::ATestProjectCharacter()
 	
 	// Set default cube class
 	CubeClass = AASpawnCubeActor::StaticClass();
+	
+	// Set default bullet class
+	BulletClass = AABulletActor::StaticClass();
 }
 
 void ATestProjectCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {	
-	// Set up action bindings
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
 	{
 		// Jumping
@@ -68,6 +70,9 @@ void ATestProjectCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInp
 		// Looking/Aiming
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ATestProjectCharacter::LookInput);
 		EnhancedInputComponent->BindAction(MouseLookAction, ETriggerEvent::Triggered, this, &ATestProjectCharacter::LookInput);
+		
+		// Firing
+		EnhancedInputComponent->BindAction(ShootAction, ETriggerEvent::Started, this, &ATestProjectCharacter::FireInput);
 	}
 	else
 	{
@@ -134,7 +139,7 @@ void ATestProjectCharacter::DoJumpStart()
 {
 	if (CubeClass)
 	{
-		FVector SpawnLocation = GetActorLocation() + GetActorForwardVector() * 100.0f;
+		FVector SpawnLocation = GetActorLocation() + GetActorForwardVector() * 500.0f + FVector(0, 0, 300.0f);
 		FRotator SpawnRotation = FRotator::ZeroRotator;
 		FActorSpawnParameters SpawnParams;
 		GetWorld()->SpawnActor<AASpawnCubeActor>(CubeClass, SpawnLocation, SpawnRotation, SpawnParams);
@@ -148,4 +153,24 @@ void ATestProjectCharacter::DoJumpEnd()
 {
 	// pass StopJumping to the character
 	StopJumping();
+}
+
+void ATestProjectCharacter::FireInput(const FInputActionValue& Value)
+{
+    DoFire();
+}
+
+void ATestProjectCharacter::DoFire()
+{
+    if (BulletClass)
+    {
+        FVector SpawnLocation = FirstPersonCameraComponent->GetComponentLocation();
+        FRotator SpawnRotation = FirstPersonCameraComponent->GetComponentRotation();
+        
+        FActorSpawnParameters SpawnParams;
+        SpawnParams.Owner = this;
+        SpawnParams.Instigator = this;
+        
+        GetWorld()->SpawnActor<AABulletActor>(BulletClass, SpawnLocation, SpawnRotation, SpawnParams);
+    }
 }

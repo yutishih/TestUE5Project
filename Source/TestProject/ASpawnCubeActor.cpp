@@ -16,7 +16,17 @@ AASpawnCubeActor::AASpawnCubeActor()
 	if (CubeAsset.Succeeded())
 	{
 		CubeMesh->SetStaticMesh(CubeAsset.Object);
+		
+		CubeMesh->SetCollisionResponseToAllChannels(ECR_Block);
+		CubeMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+
+		CubeMesh->RecreatePhysicsState();
 	}
+
+	CubeMesh->SetSimulatePhysics(true);
+	CubeMesh->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
+	
+	CubeMesh->SetGenerateOverlapEvents(true);
 }
 
 // Called when the game starts or when spawned

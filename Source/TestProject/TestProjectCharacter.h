@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "Logging/LogMacros.h"
 #include "ASpawnCubeActor.h" 
+#include "ABulletActor.h"
 #include "TestProjectCharacter.generated.h"
 
 class UInputComponent;
@@ -50,8 +51,15 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category ="Input")
 	class UInputAction* MouseLookAction;
 
+	/** Fire Input Action */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category ="Input")
+	class UInputAction* ShootAction;
+
 	UPROPERTY(EditDefaultsOnly, Category="Spawn")
 	TSubclassOf<AASpawnCubeActor> CubeClass;
+
+	UPROPERTY(EditDefaultsOnly, Category="Combat")
+	TSubclassOf<AABulletActor> BulletClass;
 	
 public:
 	ATestProjectCharacter();
@@ -63,6 +71,9 @@ protected:
 
 	/** Called from Input Actions for looking input */
 	void LookInput(const FInputActionValue& Value);
+
+	/** Called from Input Actions for fire input */
+	void FireInput(const FInputActionValue& Value);
 
 	/** Handles aim inputs from either controls or UI interfaces */
 	UFUNCTION(BlueprintCallable, Category="Input")
@@ -79,6 +90,10 @@ protected:
 	/** Handles jump end inputs from either controls or UI interfaces */
 	UFUNCTION(BlueprintCallable, Category="Input")
 	virtual void DoJumpEnd();
+
+	/** Handles fire inputs */
+	UFUNCTION(BlueprintCallable, Category="Input")
+	virtual void DoFire();
 
 protected:
 
