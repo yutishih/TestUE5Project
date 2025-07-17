@@ -14,21 +14,13 @@ class TESTPROJECT_API ACardPlayerController : public APlayerController
 public:
     ACardPlayerController();
 
-protected:
-    virtual void BeginPlay() override;
+    // 指向手牌Widget的指標
+    UPROPERTY()
+    class UUserWidget* HandWidget;
 
-public:
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Player Stats")
-    int32 Health;
-
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Player Stats")
-    int32 MaxHealth;
-
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Player Stats")
-    int32 CurrentMana;
-
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Player Stats")
-    int32 MaxMana;
+    // C++版手牌UI更新函式
+    UFUNCTION()
+    virtual void OnHandUpdatedNative();
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Player State")
     TArray<UCard*> Hand;
@@ -110,11 +102,9 @@ public:
     void OnCardPlayed(UCard* PlayedCard);
 
 protected:
+    virtual void BeginPlay() override;
     UFUNCTION()
     void CreateDefaultDeck(class UDataTable* CardDataTable);
-
-    UFUNCTION()
-    void GainMana();
 
 private:
     int32 TurnCount;

@@ -1,4 +1,5 @@
 #pragma once
+#include "TestProject/CardPlayerController.h"
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
@@ -30,9 +31,6 @@ protected:
 public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Game Settings")
     int32 StartingHandSize;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Game Settings")
-    int32 MaxMana;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Game Settings")
     int32 StartingHealth;

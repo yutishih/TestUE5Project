@@ -2,15 +2,25 @@
 #include "Engine/Engine.h"
 #include "Engine/DataTable.h"
 
+#include "CardPlayerController.h"
+#include "Engine/Engine.h"
+#include "Engine/DataTable.h"
+
+// 新增 C++ 版手牌 UI 更新函式
+void ACardPlayerController::OnHandUpdatedNative()
+{
+    // 這裡可以加上 C++ UI 更新邏輯
+    // 最後觸發 Blueprint 事件
+    OnHandUpdated();
+    UE_LOG(LogTemp, Warning, TEXT("[Native] Hand updated, current hand size: %d"), Hand.Num());
+}
+
 ACardPlayerController::ACardPlayerController()
 {
     PrimaryActorTick.bCanEverTick = false;
     
-    // 設置默認值
-    Health = 30;
-    MaxHealth = 30;
-    CurrentMana = 0;
-    MaxMana = 0;
+    // 設置默認值（玩家無生命值）
+    // 移除法力值相關
     MaxHandSize = 10;
     bIsMyTurn = false;
     TurnCount = 0;
@@ -24,10 +34,8 @@ void ACardPlayerController::BeginPlay()
 
 void ACardPlayerController::InitializeForGame(int32 StartingHealth, UDataTable* CardDataTable)
 {
-    Health = StartingHealth;
-    MaxHealth = StartingHealth;
-    CurrentMana = 0;
-    MaxMana = 0;
+    // 玩家無生命值
+    // 移除法力值相關
     TurnCount = 0;
     bIsMyTurn = false;
     
@@ -59,12 +67,10 @@ void ACardPlayerController::CreateDefaultDeck(UDataTable* CardDataTable)
     TArray<FCardData> DeckCards;
     
     // 在這裡添加一些基礎卡牌到牌組中
-    // 這只是一個示例，你可以根據需要修改
     for (int32 i = 0; i < AllCardData.Num() && DeckCards.Num() < 30; i++)
     {
         if (AllCardData[i])
         {
-            // 每張卡加入兩張（如果是普通卡牌）
             DeckCards.Add(*AllCardData[i]);
             if (AllCardData[i]->Rarity == ECardRarity::Common && DeckCards.Num() < 30)
             {
@@ -93,7 +99,7 @@ void ACardPlayerController::DrawInitialHand(int32 HandSize)
     }
     
     Hand = PlayerDeck->DrawHand(HandSize);
-    OnHandUpdated();
+    OnHandUpdatedNative();
     
     UE_LOG(LogTemp, Warning, TEXT("Drew initial hand of %d cards"), Hand.Num());
 }
@@ -102,9 +108,6 @@ void ACardPlayerController::StartTurn()
 {
     bIsMyTurn = true;
     TurnCount++;
-    
-    // 增加法力值
-    GainMana();
     
     // 抽一張卡（除了第一回合）
     if (TurnCount > 1)
@@ -123,13 +126,6 @@ void ACardPlayerController::EndTurn()
     UE_LOG(LogTemp, Warning, TEXT("Turn ended"));
 }
 
-void ACardPlayerController::GainMana()
-{
-    MaxMana = FMath::Min(MaxMana + 1, 10); // 最大法力值是10
-    CurrentMana = MaxMana;
-    OnManaUpdated();
-}
-
 UCard* ACardPlayerController::DrawCard()
 {
     if (!PlayerDeck || PlayerDeck->IsEmpty())
@@ -138,24 +134,23 @@ UCard* ACardPlayerController::DrawCard()
         TakeCardDamage(TurnCount - 30); // 如果牌組空了，造成疲勞傷害
         return nullptr;
     }
-    
+
     if (Hand.Num() >= MaxHandSize)
     {
-        // 手牌滿了，燒掉抽到的卡
         UCard* BurnedCard = PlayerDeck->DrawCard();
         UE_LOG(LogTemp, Warning, TEXT("Card burned: hand is full"));
         return nullptr;
     }
-    
+
     UCard* DrawnCard = PlayerDeck->DrawCard();
     if (DrawnCard)
     {
         Hand.Add(DrawnCard);
         OnCardDrawn(DrawnCard);
-        OnHandUpdated();
+        OnHandUpdatedNative();
         UE_LOG(LogTemp, Warning, TEXT("Drew card: %s"), *DrawnCard->CardData.CardName);
     }
-    
+
     return DrawnCard;
 }
 
@@ -165,8 +160,8 @@ bool ACardPlayerController::CanPlayCard(UCard* Card)
     {
         return false;
     }
-    
-    return Card->CanPlayCard(CurrentMana) && Hand.Contains(Card);
+
+    return Card->bIsPlayable && Hand.Contains(Card);
 }
 
 bool ACardPlayerController::PlayCard(UCard* Card)
@@ -175,48 +170,31 @@ bool ACardPlayerController::PlayCard(UCard* Card)
     {
         return false;
     }
-    
-    // 扣除法力值
-    CurrentMana -= Card->CardData.ManaCost;
-    
-    // 從手牌移除，添加到場上
+
     Hand.RemoveSingle(Card);
     PlayedCards.Add(Card);
-    
-    // 播放卡牌
+
     Card->PlayCard();
-    
-    // 更新UI
+
     OnCardPlayed(Card);
-    OnHandUpdated();
-    OnManaUpdated();
-    
+    OnHandUpdatedNative();
+
     return true;
 }
 
 void ACardPlayerController::TakeCardDamage(int32 Damage)
 {
-    Health = FMath::Max(0, Health - Damage);
-    OnHealthUpdated();
-    
-    UE_LOG(LogTemp, Warning, TEXT("Took %d damage, health now: %d"), Damage, Health);
-    
-    if (Health <= 0)
-    {
-        UE_LOG(LogTemp, Warning, TEXT("Player defeated!"));
-    }
+    UE_LOG(LogTemp, Warning, TEXT("Fatigue damage: %d (no player health)"), Damage);
 }
 
 void ACardPlayerController::Heal(int32 HealAmount)
 {
-    Health = FMath::Min(MaxHealth, Health + HealAmount);
-    OnHealthUpdated();
-    UE_LOG(LogTemp, Warning, TEXT("Healed %d, health now: %d"), HealAmount, Health);
+    UE_LOG(LogTemp, Warning, TEXT("Heal called, but player has no health."));
 }
 
 bool ACardPlayerController::IsAlive() const
 {
-    return Health > 0;
+    return true;
 }
 
 void ACardPlayerController::DiscardCard(UCard* Card)
@@ -224,7 +202,7 @@ void ACardPlayerController::DiscardCard(UCard* Card)
     if (Card && Hand.Contains(Card))
     {
         Hand.RemoveSingle(Card);
-        OnHandUpdated();
+        OnHandUpdatedNative();
         UE_LOG(LogTemp, Warning, TEXT("Discarded card: %s"), *Card->CardData.CardName);
     }
 }
@@ -242,14 +220,12 @@ int32 ACardPlayerController::GetPlayedCardsCount() const
 TArray<UCard*> ACardPlayerController::GetPlayableCards() const
 {
     TArray<UCard*> PlayableCards;
-    
     for (UCard* Card : Hand)
     {
-        if (Card && Card->CanPlayCard(CurrentMana))
+        if (Card && Card->bIsPlayable)
         {
             PlayableCards.Add(Card);
         }
     }
-    
     return PlayableCards;
 }

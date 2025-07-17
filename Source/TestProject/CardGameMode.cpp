@@ -9,7 +9,7 @@ ACardGameMode::ACardGameMode()
     
     // 設置默認值
     StartingHandSize = 4;
-    MaxMana = 10;
+    // 移除法力值相關
     StartingHealth = 30;
     TurnTimeLimit = 75.0f; // 75秒回合時間
     CurrentPhase = EGamePhase::WaitingForPlayers;
@@ -42,7 +42,7 @@ void ACardGameMode::InitializeGame()
         }
     }
     
-    if (Players.Num() >= 2)
+    if (Players.Num() >= 1)
     {
         StartGame();
     }
@@ -150,13 +150,11 @@ bool ACardGameMode::CanPlayCard(UCard* Card, ACardPlayerController* Player)
     {
         return false;
     }
-    
     if (CurrentPhase != EGamePhase::Player1Turn && CurrentPhase != EGamePhase::Player2Turn)
     {
         return false;
     }
-    
-    return Player->CanPlayCard(Card);
+    return Card->bIsPlayable && Player->Hand.Contains(Card);
 }
 
 void ACardGameMode::PlayCard(UCard* Card, ACardPlayerController* Player)

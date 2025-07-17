@@ -45,14 +45,9 @@ struct FCardData : public FTableRowBase
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Card Info")
     ECardRarity Rarity;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Card Info")
-    int32 ManaCost;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Card Info")
-    int32 Attack;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Card Info")
-    int32 Health;
+    int32 Power;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Card Info")
     class UTexture2D* CardImage;
@@ -67,9 +62,7 @@ struct FCardData : public FTableRowBase
         Description = TEXT("No description available");
         CardType = ECardType::None;
         Rarity = ECardRarity::Common;
-        ManaCost = 0;
-        Attack = 0;
-        Health = 0;
+        Power = 0;
         CardImage = nullptr;
     }
 };
@@ -85,11 +78,9 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Card Data")
     FCardData CardData;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Card State")
-    int32 CurrentHealth;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Card State")
-    int32 CurrentAttack;
+    int32 CurrentPower;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Card State")
     bool bIsPlayable;

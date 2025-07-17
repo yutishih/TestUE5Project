@@ -2,8 +2,7 @@
 
 UCard::UCard()
 {
-    CurrentHealth = 0;
-    CurrentAttack = 0;
+    CurrentPower = 0;
     bIsPlayable = false;
     bIsInPlay = false;
 }
@@ -11,15 +10,14 @@ UCard::UCard()
 void UCard::InitializeCard(const FCardData& Data)
 {
     CardData = Data;
-    CurrentHealth = Data.Health;
-    CurrentAttack = Data.Attack;
+    CurrentPower = Data.Power;
     bIsPlayable = true;
     bIsInPlay = false;
 }
 
 bool UCard::CanPlayCard(int32 CurrentMana) const
 {
-    return bIsPlayable && CurrentMana >= CardData.ManaCost;
+return bIsPlayable;
 }
 
 void UCard::PlayCard()
@@ -36,8 +34,8 @@ void UCard::TakeDamage(int32 Damage)
 {
     if (bIsInPlay && CardData.CardType == ECardType::Creature)
     {
-        CurrentHealth = FMath::Max(0, CurrentHealth - Damage);
-        if (CurrentHealth <= 0)
+        CurrentPower = FMath::Max(0, CurrentPower - Damage);
+        if (CurrentPower <= 0)
         {
             // 卡牌死亡邏輯
             UE_LOG(LogTemp, Warning, TEXT("Card destroyed: %s"), *CardData.CardName);
@@ -47,15 +45,13 @@ void UCard::TakeDamage(int32 Damage)
 
 bool UCard::IsAlive() const
 {
-    return CurrentHealth > 0;
+return CurrentPower > 0;
 }
 
 FString UCard::GetCardInfo() const
 {
-    return FString::Printf(TEXT("Name: %s, Cost: %d, Attack: %d, Health: %d"), 
-        *CardData.CardName, 
-        CardData.ManaCost, 
-        CurrentAttack, 
-        CurrentHealth
-    );
+return FString::Printf(TEXT("Name: %s, Power: %d"), 
+    *CardData.CardName, 
+    CurrentPower
+);
 }
