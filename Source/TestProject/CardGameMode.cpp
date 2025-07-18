@@ -54,9 +54,9 @@ void ACardGameMode::InitializeGame()
 
 void ACardGameMode::StartGame()
 {
-    if (Players.Num() < 2)
+    if (Players.Num() < 1)
     {
-        UE_LOG(LogTemp, Error, TEXT("Cannot start game with less than 2 players"));
+        UE_LOG(LogTemp, Error, TEXT("Cannot start game with less than 1 player"));
         return;
     }
     
